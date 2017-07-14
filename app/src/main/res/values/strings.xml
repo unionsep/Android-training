@@ -2,6 +2,8 @@
     <string name="app_name">画面部品サンプル</string>
     <string name="tv_msg">お名前を入力してください</string>
     <string name="bt_save">保存</string>
+    <string name="bt_click">表示</string>
+    <string name="bt_clear">クリア</string>
     <string name="cb_drink">ドリンク</string>
     <string name="cb_food">フード</string>
     <string name="rb_male">男</string>
