@@ -2,12 +2,20 @@ package com.websarva.wings.android.viewsample;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.ListViewCompat;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ViewSampleActivity extends AppCompatActivity {
 
@@ -16,32 +24,35 @@ public class ViewSampleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_sample);
 
-        HelloListener listener = new HelloListener();
+        List<String> menuList = new ArrayList<String>();
+        menuList.add("から揚げ定食");
+        menuList.add("ハンバーグ定食");
+        menuList.add("生姜焼き定食");
+        menuList.add("ステーキ定食");
+        menuList.add("野菜炒め定食");
+        menuList.add("とんかつ定食");
+        menuList.add("ミンチかつ定食");
+        menuList.add("チキンカツ定食");
+        menuList.add("コロッケ定食");
+        menuList.add("焼き魚定食");
+        menuList.add("焼肉定食");
 
-        Button btClick = (Button) findViewById(R.id.btClick);
-        btClick.setOnClickListener(listener);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(ViewSampleActivity.this, android.R.layout.simple_list_item_1, menuList);
 
-        Button btClear = (Button) findViewById(R.id.btClear);
-        btClear.setOnClickListener(listener);
+        ListView listView = (ListView) findViewById(R.id.lv_menu);
+        listView.setAdapter(adapter);
+
+        listView.setOnItemClickListener(new ListItemClickListener());
     }
 
-    private class HelloListener implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            EditText input = (EditText) findViewById(R.id.etName);
-            TextView output = (TextView) findViewById(R.id.tvOutput);
+    private class ListItemClickListener implements AdapterView.OnItemClickListener {
 
-            int id = view.getId();
-            switch (id) {
-                case R.id.btClick:
-                    String inputStr = input.getText().toString();
-                    output.setText(inputStr + "さん、こんにちは！");
-                    break;
-                case R.id.btClear:
-                    input.setText("");
-                    output.setText("");
-                    break;
-            }
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            String item = (String) parent.getItemAtPosition(position);
+            String show = "あなたが選んだ定食： " + item;
+            Toast.makeText(ViewSampleActivity.this, show, Toast.LENGTH_LONG).show();
         }
+
     }
 }
