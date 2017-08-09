@@ -1,4 +1,4 @@
-package com.websarva.wings.android.viewsample;
+package com.android.training.unionsep;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.websarva.wings.android.viewsample", appContext.getPackageName());
+        assertEquals("com.android.training.unionsep", appContext.getPackageName());
     }
 }

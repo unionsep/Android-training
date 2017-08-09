@@ -1,4 +1,4 @@
-package com.websarva.wings.android.viewsample;
+package com.android.training.unionsep;
 
 import org.junit.Test;
 
