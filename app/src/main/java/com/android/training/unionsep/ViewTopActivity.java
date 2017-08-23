@@ -31,6 +31,10 @@ public class ViewTopActivity extends AppCompatActivity {
         menu.put("title", "Typical View");
         menu.put("description", "Androidの基本Viewのサンプル");
         menuList.add(menu);
+        menu = new HashMap<>();
+        menu.put("title", "Local Web View");
+        menu.put("description", "アプリローカルのWeb Viewのサンプル");
+        menuList.add(menu);
 
         String[] from = {"title", "description"};
         int[] to = {android.R.id.text1, android.R.id.text2};
@@ -47,18 +51,20 @@ public class ViewTopActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
             Map<String, String> item = (Map<String, String>) parent.getItemAtPosition(position);
-            String menuName = item.get("title");
-            String menuPrice = item.get("description");
+            String title = item.get("title");
+            String description = item.get("description");
 
-            Intent intent = null;
-            if (menuName.equals("Typical View")) {
+            Intent intent;
+            if (title.equals("Typical View")) {
                 intent = new Intent(ViewTopActivity.this, ViewTypicalActivity.class);
+            } else if (title.equals("Local Web View")) {
+                intent = new Intent(ViewTopActivity.this, ViewLocalWebViewActivity.class);
             } else {
                 intent = new Intent(ViewTopActivity.this, MenuThanksActivity.class);
             }
 
-            intent.putExtra("menuName", menuName);
-            intent.putExtra("menuPrice", menuPrice);
+            intent.putExtra("menuName", title);
+            intent.putExtra("menuPrice", description);
             startActivity(intent);
 
         }
