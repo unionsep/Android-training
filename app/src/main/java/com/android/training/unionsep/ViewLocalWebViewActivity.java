@@ -1,20 +1,29 @@
 package com.android.training.unionsep;
 
-import android.content.Intent;
-import android.net.Uri;
+import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.webkit.DownloadListener;
+import android.util.Base64;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ViewLocalWebViewActivity extends AppCompatActivity {
 
@@ -25,58 +34,91 @@ public class ViewLocalWebViewActivity extends AppCompatActivity {
 
         WebView localWebView = (WebView) findViewById(R.id.localWebView);
         localWebView.getSettings().setJavaScriptEnabled(true);
+        localWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
+
         localWebView.setWebChromeClient(new WebChromeClient());
-
-        localWebView.setDownloadListener(new DownloadListener() {
+        localWebView.setWebViewClient(new WebViewClient(){
             @Override
-            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
 
-                InputStream is;
+                String savedFilePath = saveJPEG(url);
+                addGallery(savedFilePath);
 
-                try {
-                    URL u = new URL(url);
-                    HttpURLConnection con = (HttpURLConnection) u.openConnection();
-                    con.setRequestMethod("GET");
-                    con.setDoOutput(true);
-                    con.connect();
-                    is = con.getInputStream();
+                Toast.makeText(ViewLocalWebViewActivity.this, "保存しました", Toast.LENGTH_LONG).show();
 
-                    String path = Environment.getExternalStorageDirectory() + "/apdroid/";
-                    String fileName = url.substring(url.lastIndexOf("/") + 1);
-                    File dir = new File(path);
-                    dir.mkdirs();
-                    File outputFile = new File(dir, fileName);
-                    FileOutputStream fos = new FileOutputStream(outputFile);
-
-                    byte[] buffer = new byte[1024];
-                    int len = 0;
-                    while ((len = is.read(buffer)) != -1) {
-                        fos.write(buffer, 0, len);
-                    }
-                    fos.close();
-                    is.close();
-
-                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                    String name = Environment.getExternalStorageDirectory() + "/apdroid/" + url.substring(url.lastIndexOf('/', + 1));
-                    intent.setDataAndType(Uri.fromFile(new File(name)), "application/vnd.android.package-archive");
-                    startActivity(intent);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-
-
-
-//                Intent intent = new Intent(Intent.ACTION_VIEW);
-//                intent.setType(mimetype);
-//                intent.setData(Uri.parse(url));
-//                startActivity(intent);
-
+                return true;
             }
         });
+
         localWebView.loadUrl("file:///android_asset/index.html");
     }
 
+    private String saveJPEG(final String base64Character) {
+        System.out.println("##### debug base64 character : " + base64Character);
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            int selfPermission = ContextCompat.checkSelfPermission(ViewLocalWebViewActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            if (selfPermission != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                        ViewLocalWebViewActivity.this,
+                        new String[]{
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_EXTERNAL_STORAGE
+                        },
+                        1
+                );
+            }
+        }
+
+//        if (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()) {
+        String dirPath = Environment.getExternalStorageDirectory().getPath() + "/android-training/";
+        File dir = new File(dirPath);
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                System.out.println("##### error save directory");
+                return null;
+            }
+        }
+
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        File jpegPath = new File(dir.getAbsolutePath() + "/" + "kbz_" + sdf.format(date) + ".jpg");
+        System.out.println("##### jpeg path : " + jpegPath);
+
+        String data = base64Character.replaceFirst("data:image/jpeg;base64,", "");
+        byte[] bytes = Base64.decode(data, Base64.DEFAULT);
+        Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(jpegPath);
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+        } catch (IOException ioe) {
+
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+
+            }
+        }
+
+        return jpegPath.getAbsolutePath();
+//        }
+    }
+
+    private void addGallery(String absolutePath) {
+        File file = new File(absolutePath);
+
+        ContentValues values = new ContentValues();
+        ContentResolver resolver = getContentResolver();
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.Images.Media.DATE_MODIFIED, System.currentTimeMillis() / 1000);
+        values.put(MediaStore.Images.Media.SIZE, file.length());
+        values.put(MediaStore.Images.Media.TITLE, file.getName());
+        values.put(MediaStore.Images.Media.DATA, file.getPath());
+
+        resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+    }
 }

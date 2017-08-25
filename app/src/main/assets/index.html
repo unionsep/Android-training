@@ -3,38 +3,7 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <script src="js/jquery-3.2.1.min.js"></script>
         <script src="js/fabric.min.js"></script>
-        <script>
-            $(function(){
-                $(".js-div").append("jquery appended");
-
-                $("#js-alert").on("click", function(){
-                    alert("clicked!");
-                });
-
-                var canvas = new fabric.Canvas("canvas", {
-                    backgroundColor: 'rgb(100,100,200)',
-                    selectionColor: 'blue',
-                    selectionLineWidth: 2,
-                    width: 335,
-                    height: 400
-                });
-
-                fabric.Image.fromURL('img/Duke_ThumbsUp.png', function(img) {
-                    img.scale(0.1).set({
-                        left: 60,
-                        top: 60,
-                        angle: 0
-                    });
-                    canvas.add(img).setActiveObject(img);
-                });
-
-                var image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-                $("#js-save_canvas").attr({
-                    'download': 'YourProduct.png',
-                    'href'    : image
-                });
-            });
-        </script>
+        <script src="js/kingbladerZ.js"></script>
         <style>
             canvas {
                 border: solid 3px #000;
@@ -43,11 +12,16 @@
     </head>
     <body>
         <div>webview test</div>
-        <a href="" id="js-save_canvas">save image</a>
-        <br>
         <br>
         <canvas id="canvas"></canvas>
         <br>
+        <input type="text" id="js-canvas_text"><button id="js-add_canvas">add canvas</button>
+        <hr>
+        <button id="js-save_image">save</button>
+        <br>
+        <br>
+        <a id="js-img_download" href="">ダウンロード</a>
+        <a href="#"><img id="js-img_preview" src="" width="300" height="300" /></a>
         <hr>
         <div class="js-div"></div><br>
         <a id="js-alert">js-alert test</a><br>
